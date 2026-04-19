@@ -13,19 +13,7 @@ This project is a practical field study on the **SAP Production Planning (SAP PP
 
 ---
 
-## 🗂️ Repository Structure
 
-SAP-PP-Production-Order-Management/
-│
-├── frontend/
-│   └── sap_pp_frontend.html       # Interactive SAP PP dashboard UI
-│
-├── report/
-│   └── SAP_PP_documentation.pdf   # Full project report (24 pages)
-│
-└── README.md
-
----
 
 ## 🔄 Production Order Lifecycle Covered
 
