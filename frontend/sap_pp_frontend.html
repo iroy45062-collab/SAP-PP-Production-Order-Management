@@ -1,0 +1,1506 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SAP PP – Production Order Management | TechEdge Manufacturing</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --sap-blue: #1B4F8A;
+  --sap-blue-dark: #0f3460;
+  --sap-blue-mid: #2563a8;
+  --sap-teal: #0070A8;
+  --sap-green: #2E7D32;
+  --sap-green-light: #4CAF50;
+  --sap-orange: #E65100;
+  --sap-orange-light: #FF8C00;
+  --sap-red: #C62828;
+  --sap-yellow: #F9A825;
+  --sap-gray-dark: #2C3E50;
+  --sap-gray: #546E7A;
+  --sap-gray-light: #B0BEC5;
+  --sap-gray-bg: #ECEFF1;
+  --sap-white: #FFFFFF;
+  --sap-border: #CFD8DC;
+  --sap-sidebar: #1a3a5c;
+  --sap-sidebar-dark: #0d2235;
+  --sap-header: #1B4F8A;
+  --sap-active: #2E86AB;
+  --sap-text: #263238;
+  --sap-text-light: #546E7A;
+  --sap-highlight: #E3F2FD;
+  --sap-success-bg: #E8F5E9;
+  --sap-warning-bg: #FFF8E1;
+  --sap-error-bg: #FFEBEE;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: 'IBM Plex Sans', sans-serif;
+  background: var(--sap-gray-bg);
+  color: var(--sap-text);
+  height: 100vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ===== TOP HEADER BAR ===== */
+.top-bar {
+  background: var(--sap-header);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 16px;
+  height: 44px;
+  flex-shrink: 0;
+  border-bottom: 2px solid #0d2235;
+}
+.top-bar .brand { display: flex; align-items: center; gap: 10px; }
+.top-bar .brand-icon {
+  background: #2E86AB;
+  width: 28px; height: 28px;
+  border-radius: 4px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px; font-weight: 700; color: white;
+}
+.top-bar .brand-name { font-size: 13px; font-weight: 600; letter-spacing: 0.3px; }
+.top-bar .brand-sub { font-size: 10px; color: #90CAF9; font-family: 'IBM Plex Mono', monospace; margin-top: 1px; }
+.top-bar .top-right { display: flex; align-items: center; gap: 16px; font-size: 12px; }
+.top-bar .top-right span { color: #B0BEC5; }
+.top-bar .top-right strong { color: #90CAF9; }
+.top-right-meta { text-align: right; }
+
+/* ===== LAYOUT ===== */
+.app-layout {
+  display: flex;
+  height: calc(100vh - 44px);
+  overflow: hidden;
+}
+
+/* ===== SIDEBAR ===== */
+.sidebar {
+  width: 220px;
+  background: var(--sap-sidebar);
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  overflow-y: auto;
+  border-right: 1px solid #0d2235;
+}
+.sidebar::-webkit-scrollbar { width: 4px; }
+.sidebar::-webkit-scrollbar-thumb { background: #2E86AB; border-radius: 2px; }
+
+.sidebar-section { padding: 6px 0; }
+.sidebar-label {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  color: #607D8B;
+  text-transform: uppercase;
+  padding: 8px 16px 4px;
+}
+.sidebar-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 16px;
+  color: #90CAF9;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 400;
+  transition: all 0.15s;
+  border-left: 3px solid transparent;
+  position: relative;
+}
+.sidebar-item:hover { background: rgba(255,255,255,0.06); color: white; }
+.sidebar-item.active {
+  background: rgba(46,134,171,0.2);
+  color: white;
+  border-left: 3px solid #2E86AB;
+  font-weight: 600;
+}
+.sidebar-item .t-code {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 9px;
+  background: rgba(255,255,255,0.08);
+  padding: 1px 5px;
+  border-radius: 3px;
+  color: #B0BEC5;
+  margin-left: auto;
+}
+.sidebar-item .icon { width: 16px; text-align: center; font-size: 13px; flex-shrink: 0; }
+.sidebar-badge {
+  background: #E65100;
+  color: white;
+  font-size: 9px;
+  font-weight: 700;
+  border-radius: 9px;
+  padding: 1px 5px;
+  margin-left: auto;
+}
+.sidebar-divider { border: none; border-top: 1px solid rgba(255,255,255,0.06); margin: 4px 0; }
+
+/* ===== MAIN CONTENT ===== */
+.main-content {
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}
+.main-content::-webkit-scrollbar { width: 6px; }
+.main-content::-webkit-scrollbar-thumb { background: #B0BEC5; border-radius: 3px; }
+
+/* ===== PAGE HEADER ===== */
+.page-header {
+  background: white;
+  border-bottom: 2px solid var(--sap-border);
+  padding: 12px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-shrink: 0;
+}
+.page-title-row { display: flex; align-items: center; gap: 12px; }
+.page-title { font-size: 18px; font-weight: 700; color: var(--sap-blue-dark); }
+.page-subtitle { font-size: 11px; color: var(--sap-text-light); margin-top: 2px; font-family: 'IBM Plex Mono', monospace; }
+.page-meta { display: flex; gap: 20px; font-size: 11px; color: var(--sap-text-light); }
+.meta-item strong { color: var(--sap-blue); }
+.bar-icon { font-size: 22px; }
+
+/* ===== TAB BAR ===== */
+.tab-bar {
+  background: white;
+  border-bottom: 1px solid var(--sap-border);
+  display: flex;
+  padding: 0 24px;
+  flex-shrink: 0;
+}
+.tab {
+  padding: 10px 16px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--sap-gray);
+  cursor: pointer;
+  border-bottom: 3px solid transparent;
+  transition: all 0.15s;
+  white-space: nowrap;
+}
+.tab:hover { color: var(--sap-blue); }
+.tab.active { color: var(--sap-blue); border-bottom: 3px solid var(--sap-blue); font-weight: 600; }
+
+/* ===== PANELS ===== */
+.panels { display: none; padding: 20px 24px; gap: 16px; }
+.panels.active { display: flex; flex-direction: column; }
+
+/* ===== KPI CARDS ===== */
+.kpi-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+.kpi-card {
+  background: white;
+  border: 1px solid var(--sap-border);
+  border-radius: 4px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  transition: box-shadow 0.15s;
+}
+.kpi-card:hover { box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+.kpi-label { font-size: 10px; font-weight: 700; letter-spacing: 0.8px; text-transform: uppercase; color: var(--sap-gray); }
+.kpi-value { font-size: 32px; font-weight: 700; color: var(--sap-blue-dark); line-height: 1; }
+.kpi-sub { font-size: 11px; color: var(--sap-text-light); }
+.kpi-card.warning .kpi-value { color: var(--sap-orange); }
+.kpi-card.success .kpi-value { color: var(--sap-green); }
+.kpi-card.alert { border-top: 3px solid var(--sap-orange); }
+.kpi-card.alert .kpi-value { color: var(--sap-orange); }
+
+/* ===== PROCESS FLOW ===== */
+.process-card {
+  background: white;
+  border: 1px solid var(--sap-border);
+  border-radius: 4px;
+  padding: 16px 20px;
+}
+.section-title { font-size: 13px; font-weight: 700; color: var(--sap-blue-dark); margin-bottom: 14px; display: flex; align-items: center; gap: 8px; }
+.process-flow { display: flex; align-items: center; gap: 0; overflow-x: auto; padding-bottom: 8px; }
+.flow-step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  min-width: 90px;
+}
+.flow-box {
+  width: 82px;
+  height: 56px;
+  border-radius: 6px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  font-weight: 700;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.15s;
+  border: 2px solid transparent;
+  gap: 3px;
+}
+.flow-box:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
+.flow-box .t-code-small { font-family: 'IBM Plex Mono', monospace; font-size: 10px; font-weight: 700; }
+.flow-box .step-name { font-size: 9px; font-weight: 600; }
+.flow-box.completed { background: #E8F5E9; border-color: #4CAF50; color: #2E7D32; }
+.flow-box.active-step { background: var(--sap-blue); border-color: var(--sap-blue-dark); color: white; box-shadow: 0 2px 8px rgba(27,79,138,0.4); }
+.flow-box.pending { background: #F5F5F5; border-color: #B0BEC5; color: #78909C; }
+.flow-arrow { font-size: 16px; color: var(--sap-gray-light); margin: 0 4px; padding-bottom: 14px; flex-shrink: 0; }
+.flow-status-bar {
+  background: #E3F2FD;
+  border: 1px solid #90CAF9;
+  border-radius: 4px;
+  padding: 8px 14px;
+  font-size: 11px;
+  color: var(--sap-blue-dark);
+  margin-top: 12px;
+}
+.flow-status-bar strong { color: var(--sap-blue); }
+
+/* ===== TABLE ===== */
+.table-card {
+  background: white;
+  border: 1px solid var(--sap-border);
+  border-radius: 4px;
+  overflow: hidden;
+}
+.table-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 16px;
+  border-bottom: 1px solid var(--sap-border);
+  background: #FAFAFA;
+}
+.table-title { font-size: 12px; font-weight: 700; color: var(--sap-blue-dark); }
+.table-actions { display: flex; gap: 6px; }
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 12px;
+  border-radius: 3px;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+  font-family: 'IBM Plex Sans', sans-serif;
+  transition: all 0.15s;
+}
+.btn-primary { background: var(--sap-blue); color: white; }
+.btn-primary:hover { background: var(--sap-blue-dark); }
+.btn-secondary { background: white; color: var(--sap-blue); border: 1px solid var(--sap-blue); }
+.btn-secondary:hover { background: var(--sap-highlight); }
+.btn-ghost { background: transparent; color: var(--sap-gray); border: 1px solid var(--sap-border); }
+.btn-ghost:hover { background: var(--sap-gray-bg); }
+.btn-success { background: var(--sap-green); color: white; }
+.btn-danger { background: var(--sap-red); color: white; }
+
+table { width: 100%; border-collapse: collapse; font-size: 12px; }
+thead th {
+  background: #EEF2F7;
+  padding: 8px 12px;
+  text-align: left;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  color: var(--sap-gray);
+  border-bottom: 1px solid var(--sap-border);
+  white-space: nowrap;
+}
+tbody tr { border-bottom: 1px solid #F0F4F8; transition: background 0.1s; cursor: pointer; }
+tbody tr:hover { background: var(--sap-highlight); }
+tbody tr.selected { background: #DBEAFE; }
+tbody td { padding: 8px 12px; color: var(--sap-text); }
+.mono { font-family: 'IBM Plex Mono', monospace; font-size: 11px; }
+
+.status-badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 3px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+.status-crtd { background: #E3F2FD; color: #1565C0; }
+.status-rel { background: #E8F5E9; color: #2E7D32; }
+.status-cnf { background: #E0F2F1; color: #00695C; }
+.status-teco { background: #EFEBE9; color: #4E342E; }
+.status-open { background: #FFF8E1; color: #E65100; }
+.status-prc { background: #F3E5F5; color: #6A1B9A; }
+
+/* ===== FORM PANEL ===== */
+.form-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+.form-group { display: flex; flex-direction: column; gap: 4px; }
+.form-group label { font-size: 10px; font-weight: 700; color: var(--sap-gray); text-transform: uppercase; letter-spacing: 0.5px; }
+.form-group input, .form-group select, .form-group textarea {
+  padding: 7px 10px;
+  border: 1px solid var(--sap-border);
+  border-radius: 3px;
+  font-size: 12px;
+  font-family: 'IBM Plex Sans', sans-serif;
+  color: var(--sap-text);
+  background: white;
+  transition: border-color 0.15s;
+}
+.form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+  outline: none;
+  border-color: var(--sap-blue);
+  box-shadow: 0 0 0 3px rgba(27,79,138,0.08);
+}
+.form-group input[readonly] { background: #F8FAFC; color: var(--sap-gray); }
+.form-section {
+  background: white;
+  border: 1px solid var(--sap-border);
+  border-radius: 4px;
+  overflow: hidden;
+}
+.form-section-header {
+  background: #EEF2F7;
+  padding: 9px 16px;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--sap-blue-dark);
+  border-bottom: 1px solid var(--sap-border);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.form-section-body { padding: 16px; }
+.form-row-actions { display: flex; gap: 8px; padding: 12px 16px; border-top: 1px solid var(--sap-border); background: #FAFAFA; justify-content: flex-end; }
+
+/* ===== ALERT / STATUS BAR ===== */
+.status-message {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 500;
+  margin-bottom: 12px;
+}
+.status-message.success { background: var(--sap-success-bg); border: 1px solid #A5D6A7; color: #1B5E20; }
+.status-message.warning { background: var(--sap-warning-bg); border: 1px solid #FFD54F; color: #E65100; }
+.status-message.error { background: var(--sap-error-bg); border: 1px solid #EF9A9A; color: #B71C1C; }
+.status-message.info { background: #E3F2FD; border: 1px solid #90CAF9; color: #0D47A1; }
+
+/* ===== TECO SECTION ===== */
+.teco-card { background: white; border: 1px solid var(--sap-border); border-radius: 4px; padding: 16px; }
+.teco-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #EFEBE9;
+  color: #4E342E;
+  padding: 4px 10px;
+  border-radius: 3px;
+  font-size: 11px;
+  font-weight: 700;
+  border: 1px solid #D7CCC8;
+}
+
+/* ===== TROUBLESHOOT TABLE ===== */
+.trouble-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+.trouble-table th { background: #EEF2F7; padding: 8px 12px; text-align: left; font-size: 10px; font-weight: 700; text-transform: uppercase; color: var(--sap-gray); border-bottom: 1px solid var(--sap-border); }
+.trouble-table td { padding: 10px 12px; border-bottom: 1px solid #F0F4F8; vertical-align: top; line-height: 1.5; }
+.trouble-table tr:hover td { background: var(--sap-highlight); }
+.symptom-cell { color: var(--sap-red); font-weight: 600; }
+.cause-cell { color: var(--sap-orange); }
+.fix-cell { color: var(--sap-green); }
+
+/* ===== MODAL ===== */
+.modal-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  z-index: 100;
+  align-items: center;
+  justify-content: center;
+}
+.modal-overlay.open { display: flex; }
+.modal {
+  background: white;
+  border-radius: 4px;
+  width: 580px;
+  max-height: 85vh;
+  overflow-y: auto;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+}
+.modal-header {
+  background: var(--sap-blue);
+  color: white;
+  padding: 12px 18px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 13px;
+  font-weight: 700;
+}
+.modal-close { background: none; border: none; color: white; font-size: 18px; cursor: pointer; }
+.modal-body { padding: 20px; }
+.modal-footer { padding: 12px 20px; border-top: 1px solid var(--sap-border); display: flex; gap: 8px; justify-content: flex-end; }
+
+/* ===== SCROLLBAR MAIN ===== */
+.main-content::-webkit-scrollbar { width: 6px; }
+.main-content::-webkit-scrollbar-thumb { background: #CFD8DC; border-radius: 3px; }
+
+/* ===== GOODS MOVEMENT TABLE ===== */
+.gm-row-gr td { background: #E8F5E9 !important; }
+.gm-row-gi td { background: #FFF8E1 !important; }
+
+/* ===== NOTIFICATION DOT ===== */
+.notif { position: relative; }
+.notif::after {
+  content: '';
+  position: absolute;
+  top: -2px; right: -2px;
+  width: 7px; height: 7px;
+  background: #E65100;
+  border-radius: 50%;
+}
+
+/* ===== CHECKBOX ===== */
+input[type="checkbox"] { accent-color: var(--sap-blue); width: 13px; height: 13px; cursor: pointer; }
+
+/* ===== RESPONSIVE hide ===== */
+@media (max-width: 900px) { .kpi-row { grid-template-columns: repeat(2, 1fr); } }
+</style>
+</head>
+<body>
+
+<!-- TOP BAR -->
+<div class="top-bar">
+  <div class="brand">
+    <div class="brand-icon">S</div>
+    <div>
+      <div class="brand-name">TechEdge Manufacturing</div>
+      <div class="brand-sub">SAP PP System — TE01</div>
+    </div>
+  </div>
+  <div class="top-right">
+    <div class="top-right-meta" style="text-align:right;">
+      <div>Company Code: <strong>TE01</strong> &nbsp;|&nbsp; Plant: <strong>TE01</strong></div>
+      <div style="color:#607D8B;font-size:10px;font-family:'IBM Plex Mono',monospace;">User: ISHA.ROY &nbsp;|&nbsp; Roll: 23051109</div>
+    </div>
+  </div>
+</div>
+
+<div class="app-layout">
+
+<!-- SIDEBAR -->
+<nav class="sidebar">
+  <div class="sidebar-section">
+    <div class="sidebar-label">Dashboard</div>
+    <div class="sidebar-item active" onclick="showTab('dashboard')">
+      <span class="icon">📊</span> Overview
+    </div>
+  </div>
+  <hr class="sidebar-divider">
+  <div class="sidebar-section">
+    <div class="sidebar-label">Production Planning</div>
+    <div class="sidebar-item" onclick="showTab('co01')">
+      <span class="icon">➕</span> Create Prod. Order <span class="t-code">CO01</span>
+    </div>
+    <div class="sidebar-item notif" onclick="showTab('md16')">
+      <span class="icon">🔄</span> Planned Orders <span class="t-code">MD16</span>
+    </div>
+    <div class="sidebar-item" onclick="showTab('co02')">
+      <span class="icon">✏️</span> Change Prod. Order <span class="t-code">CO02</span>
+    </div>
+    <div class="sidebar-item" onclick="showTab('co15')">
+      <span class="icon">✅</span> Confirm Prod. Order <span class="t-code">CO15</span>
+    </div>
+    <div class="sidebar-item" onclick="showTab('teco')">
+      <span class="icon">🔒</span> Technical Completion <span class="t-code">TECO</span>
+    </div>
+  </div>
+  <hr class="sidebar-divider">
+  <div class="sidebar-section">
+    <div class="sidebar-label">Reports</div>
+    <div class="sidebar-item" onclick="showTab('trouble')">
+      <span class="icon">🛠</span> Troubleshooting
+    </div>
+    <div class="sidebar-item" onclick="openModal('auditModal')">
+      <span class="icon">📋</span> Audit Trail
+    </div>
+  </div>
+</nav>
+
+<!-- MAIN CONTENT -->
+<div class="main-content" id="mainContent">
+
+  <!-- ========== DASHBOARD ========== -->
+  <div id="tab-dashboard" class="panels active">
+
+    <div class="page-header" style="padding:12px 0 12px 0; background:transparent; border:none;">
+      <div>
+        <div class="page-title" style="display:flex;align-items:center;gap:10px;">
+          <span class="bar-icon">📦</span> Production Order Management
+        </div>
+        <div class="page-subtitle">SAP PP MODULE — Production Planning Lifecycle Dashboard</div>
+      </div>
+      <div class="page-meta">
+        <div class="meta-item">Date: <strong id="currentDate"></strong></div>
+        <div class="meta-item">MRP Controller: <strong>010 SFG(EWH)</strong></div>
+      </div>
+    </div>
+
+    <!-- KPI CARDS -->
+    <div class="kpi-row">
+      <div class="kpi-card">
+        <div class="kpi-label">Open Planned Orders</div>
+        <div class="kpi-value warning">4</div>
+        <div class="kpi-sub">↑ 2 awaiting conversion</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Active Prod. Orders</div>
+        <div class="kpi-value" style="color:var(--sap-blue)">7</div>
+        <div class="kpi-sub">3 REL · 2 PRC · 2 CNF</div>
+      </div>
+      <div class="kpi-card success">
+        <div class="kpi-label">GR This Month</div>
+        <div class="kpi-value">12</div>
+        <div class="kpi-sub">All movements posted ✓</div>
+      </div>
+      <div class="kpi-card alert">
+        <div class="kpi-label">Stock Deficits</div>
+        <div class="kpi-value">2</div>
+        <div class="kpi-sub">₹ 1,40,000 pending GI</div>
+      </div>
+    </div>
+
+    <!-- PROCESS FLOW -->
+    <div class="process-card">
+      <div class="section-title">🔁 Production Order Lifecycle — Process Flow</div>
+      <div class="process-flow">
+        <div class="flow-step">
+          <div class="flow-box completed" onclick="showTab('md16')" title="MD16 - Planned Orders">
+            <div class="t-code-small">MD16</div>
+            <div class="step-name">Planned Order</div>
+          </div>
+        </div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-step">
+          <div class="flow-box completed" onclick="showTab('co01')" title="CO01 - Create Prod Order">
+            <div class="t-code-small">CO01</div>
+            <div class="step-name">Create Order</div>
+          </div>
+        </div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-step">
+          <div class="flow-box active-step" onclick="showTab('co02')" title="CO02 - Change/Release">
+            <div class="t-code-small">CO02</div>
+            <div class="step-name">Release / Change</div>
+          </div>
+        </div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-step">
+          <div class="flow-box pending" onclick="showTab('co15')" title="CO15 - Confirm">
+            <div class="t-code-small">CO15</div>
+            <div class="step-name">Confirm Order</div>
+          </div>
+        </div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-step">
+          <div class="flow-box pending" onclick="showTab('teco')" title="TECO - Technical Complete">
+            <div class="t-code-small">TECO</div>
+            <div class="step-name">Tech. Complete</div>
+          </div>
+        </div>
+      </div>
+      <div class="flow-status-bar">
+        Current active step: <strong>CO02 – Change/Release</strong> — Order 6600000887 (BLU R 50 H) pending release for Plant TE01. <span style="color:#607D8B;">Qty: 9,000 EA · Scheduled: Today</span>
+      </div>
+    </div>
+
+    <!-- RECENT ACTIVITY TABLE -->
+    <div class="table-card">
+      <div class="table-toolbar">
+        <div class="table-title">📄 Recent Production Orders</div>
+        <div class="table-actions">
+          <button class="btn btn-ghost" onclick="showTab('co01')">+ New Order</button>
+          <button class="btn btn-secondary">⬇ Export</button>
+        </div>
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th><input type="checkbox" id="selectAll" onclick="toggleAll(this)"></th>
+            <th>Order No.</th>
+            <th>Material</th>
+            <th>Description</th>
+            <th>Plant</th>
+            <th>Order Qty</th>
+            <th>Confirmed Qty</th>
+            <th>Start Date</th>
+            <th>End Date</th>
+            <th>Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr onclick="selectRow(this)">
+            <td><input type="checkbox"></td>
+            <td class="mono">6600000887</td>
+            <td class="mono">3605202</td>
+            <td>BLU R 50 H</td>
+            <td>TE01</td>
+            <td>9,000 EA</td>
+            <td>0 EA</td>
+            <td>18.04.2026</td>
+            <td>25.04.2026</td>
+            <td><span class="status-badge status-rel">REL</span></td>
+            <td><button class="btn btn-ghost" style="padding:3px 8px;font-size:10px;" onclick="openModal('co02Modal');event.stopPropagation()">CO02</button></td>
+          </tr>
+          <tr onclick="selectRow(this)">
+            <td><input type="checkbox"></td>
+            <td class="mono">6600000888</td>
+            <td class="mono">3605210</td>
+            <td>STL PIPE 40MM</td>
+            <td>TE01</td>
+            <td>5,000 EA</td>
+            <td>5,000 EA</td>
+            <td>10.04.2026</td>
+            <td>17.04.2026</td>
+            <td><span class="status-badge status-cnf">CNF</span></td>
+            <td><button class="btn btn-ghost" style="padding:3px 8px;font-size:10px;" onclick="openModal('tecoModal');event.stopPropagation()">TECO</button></td>
+          </tr>
+          <tr onclick="selectRow(this)">
+            <td><input type="checkbox"></td>
+            <td class="mono">6600000885</td>
+            <td class="mono">3405100</td>
+            <td>COPPER WIRE ROH</td>
+            <td>TE01</td>
+            <td>200 KG</td>
+            <td>0 KG</td>
+            <td>20.04.2026</td>
+            <td>28.04.2026</td>
+            <td><span class="status-badge status-crtd">CRTD</span></td>
+            <td><button class="btn btn-ghost" style="padding:3px 8px;font-size:10px;" onclick="showTab('co02');event.stopPropagation()">Release</button></td>
+          </tr>
+          <tr onclick="selectRow(this)">
+            <td><input type="checkbox"></td>
+            <td class="mono">6600000880</td>
+            <td class="mono">3205033</td>
+            <td>STEEL RODS ROH</td>
+            <td>TE01</td>
+            <td>10,000 KG</td>
+            <td>10,000 KG</td>
+            <td>01.04.2026</td>
+            <td>08.04.2026</td>
+            <td><span class="status-badge status-teco">TECO</span></td>
+            <td><button class="btn btn-ghost" style="padding:3px 8px;font-size:10px;" disabled>Closed</button></td>
+          </tr>
+          <tr onclick="selectRow(this)">
+            <td><input type="checkbox"></td>
+            <td class="mono">6600000890</td>
+            <td class="mono">3705041</td>
+            <td>ALU SHEET 2MM</td>
+            <td>TE01</td>
+            <td>3,000 EA</td>
+            <td>1,200 EA</td>
+            <td>15.04.2026</td>
+            <td>22.04.2026</td>
+            <td><span class="status-badge status-prc">PRC</span></td>
+            <td><button class="btn btn-ghost" style="padding:3px 8px;font-size:10px;" onclick="showTab('co15');event.stopPropagation()">CO15</button></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ========== CO01 – CREATE PRODUCTION ORDER ========== -->
+  <div id="tab-co01" class="panels">
+    <div class="status-message info">📌 Transaction CO01 — Create Production Order. BOM and Routing will be auto-populated upon entry.</div>
+    <div class="form-section">
+      <div class="form-section-header">🏭 CO01: Production Order Create — Initial Screen</div>
+      <div class="form-section-body">
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Material Code *</label>
+            <input type="text" id="co01_material" placeholder="e.g. E1AM205/5SB16Q78" maxlength="18">
+          </div>
+          <div class="form-group">
+            <label>Production Plant *</label>
+            <select id="co01_plant">
+              <option value="">-- Select Plant --</option>
+              <option value="TE01">TE01 – TechEdge Manufacturing</option>
+              <option value="SM01">SM01 – AVBV Enschede Mfg.</option>
+              <option value="PU01">PU01 – June Production</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Order Type *</label>
+            <select id="co01_order_type">
+              <option value="PP01">PP01 – Standard Production</option>
+              <option value="PP02">PP02 – Repetitive Manufacturing</option>
+              <option value="PP03">PP03 – Process Order</option>
+            </select>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="form-section">
+      <div class="form-section-header">📋 CO01: Production Order Create — Header</div>
+      <div class="form-section-body">
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Total Quantity *</label>
+            <input type="number" id="co01_qty" placeholder="e.g. 100" min="1">
+          </div>
+          <div class="form-group">
+            <label>Unit of Measure</label>
+            <select id="co01_uom">
+              <option>EA</option><option>KG</option><option>L</option><option>M</option><option>PC</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Scheduling Type</label>
+            <select id="co01_sched">
+              <option value="CURRENT">Current Date</option>
+              <option value="BASIC">Basic Dates</option>
+              <option value="FORWARD">Forward Scheduling</option>
+              <option value="BACKWARD">Backward Scheduling</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Start Date</label>
+            <input type="date" id="co01_start">
+          </div>
+          <div class="form-group">
+            <label>Finish Date</label>
+            <input type="date" id="co01_end">
+          </div>
+          <div class="form-group">
+            <label>Order Number (Auto)</label>
+            <input type="text" id="co01_orderno" readonly placeholder="Generated on Save">
+          </div>
+        </div>
+        <div style="margin-top:14px;">
+          <div class="form-group">
+            <label>BOM / Routing Auto-Population</label>
+            <div style="padding:8px 12px;background:#F8FAFC;border:1px solid var(--sap-border);border-radius:3px;font-size:11px;color:var(--sap-gray);">
+              ℹ️ BOM and Routing will be automatically retrieved from master data upon confirming material + plant combination.
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="form-row-actions">
+        <button class="btn btn-ghost" onclick="showTab('dashboard')">Cancel</button>
+        <button class="btn btn-secondary" onclick="checkAvailability()">🔍 Check Material Availability</button>
+        <button class="btn btn-success" onclick="releaseOrder()">🚩 Release Order</button>
+        <button class="btn btn-primary" onclick="saveOrder('co01')">💾 Save (CO01)</button>
+      </div>
+    </div>
+
+    <div id="co01_status" style="display:none;" class="status-message success">
+      ✅ <span id="co01_status_text"></span>
+    </div>
+  </div>
+
+  <!-- ========== MD16 – PLANNED ORDERS ========== -->
+  <div id="tab-md16" class="panels">
+    <div class="status-message info">📌 Transaction MD16 — Display & Convert Planned Orders. Select orders and convert to Production Orders in bulk.</div>
+
+    <div class="form-section">
+      <div class="form-section-header">🔍 MD16: Search for Planned Orders via MRP Controller</div>
+      <div class="form-section-body">
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Search By</label>
+            <select id="md16_search_by">
+              <option value="mrp">MRP Controller</option>
+              <option value="material">Material</option>
+              <option value="prod_ver">Production Version</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Plant Code *</label>
+            <select id="md16_plant">
+              <option value="TE01">TE01 – TechEdge Manufacturing</option>
+              <option value="PU01">PU01 – June Production</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>MRP Controller</label>
+            <input type="text" value="010 SFG(EWH)">
+          </div>
+          <div class="form-group">
+            <label>End Selection Date *</label>
+            <input type="date" id="md16_end_date">
+          </div>
+        </div>
+      </div>
+      <div class="form-row-actions">
+        <button class="btn btn-primary" onclick="fetchPlannedOrders()">🔍 Find Planned Orders</button>
+      </div>
+    </div>
+
+    <div id="md16_results" class="table-card" style="display:none;">
+      <div class="table-toolbar">
+        <div class="table-title">📋 Planned Orders List (MRP Controller: 010 SFG(EWH))</div>
+        <div class="table-actions">
+          <button class="btn btn-primary" onclick="convertSelected()">⚡ Convert to Production Order</button>
+        </div>
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th><input type="checkbox" onclick="toggleAll(this)"></th>
+            <th>Planned Order</th>
+            <th>Material</th>
+            <th>Description</th>
+            <th>Order Qty</th>
+            <th>UoM</th>
+            <th>Order Start</th>
+            <th>Order Finish</th>
+            <th>MRP Area</th>
+          </tr>
+        </thead>
+        <tbody id="md16_body">
+          <tr><td><input type="checkbox"></td><td class="mono">41818775</td><td class="mono">02900006100</td><td>HALF SHELL MTL</td><td>8,200</td><td>NR</td><td>14.10.2026</td><td>14.10.2026</td><td>TE01</td></tr>
+          <tr><td><input type="checkbox"></td><td class="mono">41818777</td><td class="mono">02900220160</td><td>COPPER CORE WR</td><td>20,000</td><td>NR</td><td>28.10.2026</td><td>28.10.2026</td><td>TE01</td></tr>
+          <tr><td><input type="checkbox"></td><td class="mono">41818772</td><td class="mono">03500103501</td><td>STEEL ROD ROH</td><td>6,666</td><td>NR</td><td>12.10.2026</td><td>14.10.2026</td><td>TE01</td></tr>
+          <tr><td><input type="checkbox"></td><td class="mono">41818462</td><td class="mono">03390399001</td><td>ALU STRIP 5MM</td><td>353</td><td>NR</td><td>03.10.2026</td><td>07.10.2026</td><td>TE01</td></tr>
+        </tbody>
+      </table>
+      <div id="md16_convert_status" style="display:none;padding:10px 16px;" class="status-message success">
+        ✅ <span id="md16_convert_text"></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== CO02 – CHANGE PRODUCTION ORDER ========== -->
+  <div id="tab-co02" class="panels">
+    <div class="status-message info">📌 Transaction CO02 — Change Production Order. Modify quantity, dates, BOM/Routing, or apply TECO status.</div>
+
+    <div class="form-section">
+      <div class="form-section-header">🔍 CO02: Production Order Change — Initial Screen</div>
+      <div class="form-section-body">
+        <div class="form-grid" style="grid-template-columns: 1fr 1fr 1fr;">
+          <div class="form-group">
+            <label>Production Order Number *</label>
+            <input type="text" id="co02_orderno" placeholder="e.g. 6600000887" oninput="loadOrderCO02()">
+          </div>
+          <div class="form-group">
+            <label>Selection Mode</label>
+            <select id="co02_selmode">
+              <option>Display Overview</option>
+              <option>Order Entered</option>
+              <option>Order Sub-Tree</option>
+              <option>Collective Order</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Current Status</label>
+            <input type="text" id="co02_status" readonly placeholder="Auto-filled">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="form-section">
+      <div class="form-section-header">✏️ CO02: Production Order Change — Header</div>
+      <div class="form-section-body">
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Material</label>
+            <input type="text" id="co02_material" readonly placeholder="Auto from order">
+          </div>
+          <div class="form-group">
+            <label>Plant</label>
+            <input type="text" id="co02_plant" readonly placeholder="Auto from order">
+          </div>
+          <div class="form-group">
+            <label>Order Type</label>
+            <input type="text" id="co02_otype" readonly placeholder="Auto from order">
+          </div>
+          <div class="form-group">
+            <label>Total Quantity (Modify) *</label>
+            <input type="number" id="co02_qty" placeholder="Enter new quantity">
+          </div>
+          <div class="form-group">
+            <label>Unit of Measure</label>
+            <input type="text" id="co02_uom" readonly value="EA">
+          </div>
+          <div class="form-group">
+            <label>Scheduling Type</label>
+            <select id="co02_sched">
+              <option>Current Date</option>
+              <option>Basic Dates</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>New Start Date</label>
+            <input type="date" id="co02_start">
+          </div>
+          <div class="form-group">
+            <label>New Finish Date</label>
+            <input type="date" id="co02_end">
+          </div>
+          <div class="form-group">
+            <label>Order Notes</label>
+            <input type="text" id="co02_notes" placeholder="Optional notes">
+          </div>
+        </div>
+      </div>
+      <div class="form-row-actions">
+        <button class="btn btn-ghost" onclick="showTab('dashboard')">Cancel</button>
+        <button class="btn btn-secondary" onclick="readMasterData()">🔁 Read PP Master Data</button>
+        <button class="btn btn-success" onclick="releaseOrderCO02()">🚩 Release Order</button>
+        <button class="btn btn-primary" onclick="saveOrder('co02')">💾 Save (CO02)</button>
+      </div>
+    </div>
+
+    <div id="co02_status" style="display:none;" class="status-message success">
+      ✅ <span id="co02_status_text"></span>
+    </div>
+  </div>
+
+  <!-- ========== CO15 – CONFIRM PRODUCTION ORDER ========== -->
+  <div id="tab-co15" class="panels">
+    <div class="status-message info">📌 Transaction CO15 — Confirm Production Order. Triggers Goods Receipt (Mv.101) + Goods Issue (Mv.261) automatically.</div>
+
+    <div class="form-section">
+      <div class="form-section-header">✅ CO15: Enter Production Order Confirmation — Initial Screen</div>
+      <div class="form-section-body">
+        <div class="form-grid" style="grid-template-columns:1fr 1fr 1fr;">
+          <div class="form-group">
+            <label>Production Order Number *</label>
+            <input type="text" id="co15_orderno" placeholder="e.g. 6600000887" oninput="loadOrderCO15()">
+          </div>
+          <div class="form-group">
+            <label>Material Number</label>
+            <input type="text" id="co15_material" readonly placeholder="Auto-filled">
+          </div>
+          <div class="form-group">
+            <label>Order Status</label>
+            <input type="text" id="co15_status_field" readonly placeholder="Auto-filled">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="form-section">
+      <div class="form-section-header">📦 CO15: Confirmation of Production Order — Actual Data</div>
+      <div class="form-section-body">
+        <div class="form-grid" style="grid-template-columns:1fr 1fr 1fr 1fr;">
+          <div class="form-group">
+            <label>Yield to Confirm *</label>
+            <input type="number" id="co15_yield" placeholder="e.g. 5000" min="1">
+          </div>
+          <div class="form-group">
+            <label>Confirmed Scrap</label>
+            <input type="number" id="co15_scrap" placeholder="0" min="0">
+          </div>
+          <div class="form-group">
+            <label>Unit of Measure</label>
+            <input type="text" id="co15_uom" readonly value="EA">
+          </div>
+          <div class="form-group">
+            <label>Confirmation Type</label>
+            <select id="co15_conf_type">
+              <option value="PARTIAL">Partial Confirmation</option>
+              <option value="FINAL">Final Confirmation</option>
+              <option value="AUTO">Auto Final</option>
+            </select>
+          </div>
+        </div>
+      </div>
+      <div class="form-row-actions">
+        <button class="btn btn-ghost" onclick="showTab('dashboard')">Cancel</button>
+        <button class="btn btn-secondary" onclick="previewGoodsMovements()">📋 Goods Movements Preview</button>
+        <button class="btn btn-primary" onclick="saveOrder('co15')">💾 Save Confirmation (CO15)</button>
+      </div>
+    </div>
+
+    <!-- Goods Movements Preview -->
+    <div id="co15_gm_card" class="table-card" style="display:none;">
+      <div class="table-toolbar">
+        <div class="table-title">📦 Confirmation of Production Order: Goods Movements Overview</div>
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>Material</th>
+            <th>Description</th>
+            <th>Quantity</th>
+            <th>UoM</th>
+            <th>Plant</th>
+            <th>St.Loc</th>
+            <th>Batch</th>
+            <th>Mv. Type</th>
+            <th>Direction</th>
+            <th>Valuation</th>
+          </tr>
+        </thead>
+        <tbody id="co15_gm_body">
+          <tr class="gm-row-gr">
+            <td class="mono">3605202</td>
+            <td>BLU R 50 H (Finished)</td>
+            <td id="co15_gm_qty">5,000</td>
+            <td>EA</td>
+            <td>TE01</td>
+            <td>PROD</td>
+            <td>—</td>
+            <td><strong style="color:#2E7D32">101</strong></td>
+            <td>GR ↑ Stock</td>
+            <td>₹ 2,50,000</td>
+          </tr>
+          <tr class="gm-row-gi">
+            <td class="mono">03500103501</td>
+            <td>STEEL ROD ROH (Component)</td>
+            <td>10,000</td>
+            <td>NR</td>
+            <td>TE01</td>
+            <td>PROD</td>
+            <td>—</td>
+            <td><strong style="color:#E65100">261</strong></td>
+            <td>GI ↓ Consumption</td>
+            <td>₹ 80,000</td>
+          </tr>
+          <tr class="gm-row-gi">
+            <td class="mono">03500302620</td>
+            <td>COPPER WIRE (Component)</td>
+            <td>10,000</td>
+            <td>NR</td>
+            <td>TE01</td>
+            <td>PROD</td>
+            <td>—</td>
+            <td><strong style="color:#E65100">261</strong></td>
+            <td>GI ↓ Consumption</td>
+            <td>₹ 60,000</td>
+          </tr>
+          <tr class="gm-row-gi">
+            <td class="mono">03500741000</td>
+            <td>ALU STRIP 5MM (Component)</td>
+            <td>10,000</td>
+            <td>NR</td>
+            <td>TE01</td>
+            <td>PROD</td>
+            <td>—</td>
+            <td><strong style="color:#E65100">261</strong></td>
+            <td>GI ↓ Consumption</td>
+            <td>₹ 45,000</td>
+          </tr>
+        </tbody>
+      </table>
+      <div style="padding:8px 16px;background:#F8FAFC;border-top:1px solid var(--sap-border);font-size:11px;color:var(--sap-gray);">
+        🟢 Green rows = Goods Receipt (Mv.101 — Stock increase) &nbsp;|&nbsp; 🟡 Yellow rows = Goods Issue (Mv.261 — Stock consumption)
+      </div>
+    </div>
+
+    <div id="co15_status" style="display:none;" class="status-message success">
+      ✅ <span id="co15_status_text"></span>
+    </div>
+  </div>
+
+  <!-- ========== TECO ========== -->
+  <div id="tab-teco" class="panels">
+    <div class="status-message warning">⚠️ Technical Completion (TECO) is irreversible once applied. All open reservations will be cancelled and GR/GI will be blocked.</div>
+
+    <div class="form-section">
+      <div class="form-section-header">🔒 CO02 → Functions → Restrict Processing → Complete Technically</div>
+      <div class="form-section-body">
+        <div class="form-grid" style="grid-template-columns:1fr 1fr 1fr;">
+          <div class="form-group">
+            <label>Production Order Number *</label>
+            <input type="text" id="teco_orderno" placeholder="e.g. 6600000888" oninput="loadOrderTECO()">
+          </div>
+          <div class="form-group">
+            <label>Material Number</label>
+            <input type="text" id="teco_material" readonly placeholder="Auto-filled">
+          </div>
+          <div class="form-group">
+            <label>Current Status</label>
+            <input type="text" id="teco_status_field" readonly placeholder="Auto-filled">
+          </div>
+        </div>
+
+        <div style="margin-top:16px;padding:14px;background:#EFEBE9;border:1px solid #BCAAA4;border-radius:4px;">
+          <div style="font-size:12px;font-weight:700;color:#4E342E;margin-bottom:10px;">⚠️ System Effects upon TECO Application:</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:11px;color:#5D4037;">
+            <div>🔴 Order Status → <strong>TECO</strong> (no further GR/GI)</div>
+            <div>🔴 Removed from MRP stock/req. list</div>
+            <div>🔴 All open component reservations cancelled</div>
+            <div>🟢 CO team can execute variance calculations</div>
+          </div>
+        </div>
+
+        <div style="margin-top:14px;" id="teco_status_display" style="display:none;">
+          <div class="teco-badge">🔒 TECO MSPT MANC NTUP PCC</div>
+          <span style="font-size:11px;color:var(--sap-gray);margin-left:10px;">Status will display here after TECO is applied</span>
+        </div>
+      </div>
+      <div class="form-row-actions">
+        <button class="btn btn-ghost" onclick="showTab('dashboard')">Cancel</button>
+        <button class="btn btn-secondary" onclick="revokeTECO()">↩️ Revoke Technical Completion</button>
+        <button class="btn btn-danger" onclick="applyTECO()">🔒 Complete Technically (TECO)</button>
+      </div>
+    </div>
+
+    <div id="teco_confirm_status" style="display:none;" class="status-message">
+      <span id="teco_confirm_text"></span>
+    </div>
+
+    <!-- TECO Orders List -->
+    <div class="table-card">
+      <div class="table-toolbar">
+        <div class="table-title">🔒 Technically Completed Orders</div>
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>Order No.</th>
+            <th>Material</th>
+            <th>Description</th>
+            <th>Closed Qty</th>
+            <th>TECO Date</th>
+            <th>Variance</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="mono">6600000880</td>
+            <td class="mono">3205033</td>
+            <td>STEEL RODS ROH</td>
+            <td>10,000 KG</td>
+            <td>08.04.2026</td>
+            <td style="color:var(--sap-green)">+₹ 2,100</td>
+            <td><span class="status-badge status-teco">TECO</span></td>
+          </tr>
+          <tr>
+            <td class="mono">6600000875</td>
+            <td class="mono">3105022</td>
+            <td>IRON PLATE 5MM</td>
+            <td>500 EA</td>
+            <td>01.04.2026</td>
+            <td style="color:var(--sap-red)">-₹ 8,400</td>
+            <td><span class="status-badge status-teco">TECO</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ========== TROUBLESHOOTING ========== -->
+  <div id="tab-trouble" class="panels">
+    <div class="status-message info">📌 Common Issues and Troubleshooting Guide — SAP PP Production Order Management</div>
+    <div class="table-card">
+      <div class="table-toolbar">
+        <div class="table-title">🛠 Troubleshooting Reference Table</div>
+      </div>
+      <table class="trouble-table">
+        <thead>
+          <tr>
+            <th>Symptom / Error</th>
+            <th>Root Cause</th>
+            <th>Recommended Resolution</th>
+            <th>T-Code</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="symptom-cell">BOM/Routing not populated in Production Order</td>
+            <td class="cause-cell">BOM or Routing does not exist or is not valid for material/plant combination</td>
+            <td class="fix-cell">Verify BOM in CS03 and Routing in CA03. Create/extend master data, then recreate the Production Order.</td>
+            <td><span class="mono" style="font-size:11px;">CS03 / CA03</span></td>
+          </tr>
+          <tr>
+            <td class="symptom-cell">Production Order cannot be confirmed (CO15)</td>
+            <td class="cause-cell">Order status is not REL. Confirmation requires REL status.</td>
+            <td class="fix-cell">Open in CO02 → Functions → Release. Or enable auto-release via Production Scheduling Profile in Material Master.</td>
+            <td><span class="mono" style="font-size:11px;">CO02</span></td>
+          </tr>
+          <tr>
+            <td class="symptom-cell">Accounting error during Goods Movement confirmation</td>
+            <td class="cause-cell">Incorrect or missing Valuation Class in Material Master Accounting view</td>
+            <td class="fix-cell">Check Valuation Class in MM03 (Accounting 1 view). Coordinate with Finance/CO team to assign or correct.</td>
+            <td><span class="mono" style="font-size:11px;">MM03</span></td>
+          </tr>
+          <tr>
+            <td class="symptom-cell">Activity price or costing error on confirmation</td>
+            <td class="cause-cell">Standard cost not updated or cost estimate not released for material</td>
+            <td class="fix-cell">Execute cost estimate in CK11N and release with CK24 to ensure planned costs are available.</td>
+            <td><span class="mono" style="font-size:11px;">CK11N / CK24</span></td>
+          </tr>
+          <tr>
+            <td class="symptom-cell">Goods movement failed due to stock deficit</td>
+            <td class="cause-cell">Insufficient component stock at production storage location</td>
+            <td class="fix-cell">Procure or transfer missing components to correct storage location. Then reprocess failed goods movements.</td>
+            <td><span class="mono" style="font-size:11px;">MIGO / MB1B</span></td>
+          </tr>
+          <tr>
+            <td class="symptom-cell">Planned Order not visible after conversion</td>
+            <td class="cause-cell">Planned Order is permanently deleted from system after conversion</td>
+            <td class="fix-cell">Use CO03 (Display Production Order) to locate resulting Production Order by material, plant, or order number.</td>
+            <td><span class="mono" style="font-size:11px;">CO03</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div><!-- /main-content -->
+</div><!-- /app-layout -->
+
+<!-- ========== MODALS ========== -->
+
+<!-- CO02 Quick Modal -->
+<div class="modal-overlay" id="co02Modal">
+  <div class="modal">
+    <div class="modal-header">✏️ CO02: Change Production Order — Quick Edit <button class="modal-close" onclick="closeModal('co02Modal')">✕</button></div>
+    <div class="modal-body">
+      <div class="status-message info">Order: <strong>6600000887</strong> · Material: 3605202 · Status: <strong>REL MSPT MANC PCC</strong></div>
+      <div class="form-group" style="margin-bottom:12px;">
+        <label>New Total Quantity</label>
+        <input type="number" placeholder="e.g. 9000" value="9000">
+      </div>
+      <div class="form-group">
+        <label>Notes</label>
+        <input type="text" placeholder="Modification reason...">
+      </div>
+      <div class="status-message success" style="margin-top:12px;">💡 After saving: System will show "Order number 6600000887 saved" in status bar.</div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('co02Modal')">Cancel</button>
+      <button class="btn btn-secondary" onclick="closeModal('co02Modal')">🔁 Read PP Master Data</button>
+      <button class="btn btn-primary" onclick="closeModal('co02Modal');showToast('Order 6600000887 saved successfully.')">💾 Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- TECO Quick Modal -->
+<div class="modal-overlay" id="tecoModal">
+  <div class="modal">
+    <div class="modal-header">🔒 TECO: Technically Complete Order <button class="modal-close" onclick="closeModal('tecoModal')">✕</button></div>
+    <div class="modal-body">
+      <div class="status-message warning">⚠️ This action is irreversible. All open reservations for Order 6600000888 will be cancelled.</div>
+      <div style="padding:12px;background:#EFEBE9;border-radius:4px;font-size:12px;color:#4E342E;">
+        <strong>Order:</strong> 6600000888 &nbsp;|&nbsp; <strong>Material:</strong> STL PIPE 40MM &nbsp;|&nbsp; <strong>Current Status:</strong> CNF<br>
+        <strong>Confirmed Qty:</strong> 5,000 EA &nbsp;|&nbsp; <strong>Variance:</strong> To be calculated by CO team
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('tecoModal')">Cancel</button>
+      <button class="btn btn-danger" onclick="closeModal('tecoModal');showToast('TECO applied to Order 6600000888. Status: TECO MSPT MANC NTUP PCC')">🔒 Apply TECO</button>
+    </div>
+  </div>
+</div>
+
+<!-- Audit Modal -->
+<div class="modal-overlay" id="auditModal">
+  <div class="modal" style="width:640px;">
+    <div class="modal-header">📋 Audit Trail — Production Order Changelog <button class="modal-close" onclick="closeModal('auditModal')">✕</button></div>
+    <div class="modal-body">
+      <table style="width:100%;font-size:11px;border-collapse:collapse;">
+        <thead><tr style="background:#EEF2F7;"><th style="padding:7px 10px;text-align:left;">Timestamp</th><th style="padding:7px 10px;text-align:left;">Order</th><th style="padding:7px 10px;text-align:left;">T-Code</th><th style="padding:7px 10px;text-align:left;">Action</th><th style="padding:7px 10px;text-align:left;">User</th></tr></thead>
+        <tbody style="font-size:11px;">
+          <tr style="border-bottom:1px solid #F0F4F8;"><td style="padding:7px 10px;" class="mono">18.04.2026 14:33</td><td class="mono" style="padding:7px 10px;">6600000887</td><td class="mono" style="padding:7px 10px;">CO02</td><td style="padding:7px 10px;">Qty changed: 100→9,000 EA</td><td style="padding:7px 10px;">ISHA.ROY</td></tr>
+          <tr style="border-bottom:1px solid #F0F4F8;"><td style="padding:7px 10px;" class="mono">18.04.2026 12:15</td><td class="mono" style="padding:7px 10px;">6600000888</td><td class="mono" style="padding:7px 10px;">CO15</td><td style="padding:7px 10px;">Final Confirmation: 5,000 EA. GR 101 + GI 261 posted.</td><td style="padding:7px 10px;">ISHA.ROY</td></tr>
+          <tr style="border-bottom:1px solid #F0F4F8;"><td style="padding:7px 10px;" class="mono">17.04.2026 09:00</td><td class="mono" style="padding:7px 10px;">6600000880</td><td class="mono" style="padding:7px 10px;">CO02</td><td style="padding:7px 10px;">TECO Applied. Status: TECO MSPT MANC NTUP PCC</td><td style="padding:7px 10px;">ISHA.ROY</td></tr>
+          <tr><td style="padding:7px 10px;" class="mono">16.04.2026 10:30</td><td class="mono" style="padding:7px 10px;">6600000885</td><td class="mono" style="padding:7px 10px;">CO01</td><td style="padding:7px 10px;">Order Created. BOM + Routing auto-populated.</td><td style="padding:7px 10px;">ISHA.ROY</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="modal-footer"><button class="btn btn-ghost" onclick="closeModal('auditModal')">Close</button></div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div id="toast" style="display:none;position:fixed;bottom:24px;right:24px;background:#1B4F8A;color:white;padding:10px 18px;border-radius:4px;font-size:12px;font-weight:600;z-index:200;box-shadow:0 4px 16px rgba(0,0,0,0.2);max-width:380px;"></div>
+
+<script>
+// Set today's date
+const today = new Date();
+document.getElementById('currentDate').textContent = today.toLocaleDateString('en-IN', {day:'2-digit',month:'2-digit',year:'numeric'}).replace(/\//g,'.');
+const todayStr = today.toISOString().split('T')[0];
+['co01_start','co01_end','md16_end_date','co02_start','co02_end'].forEach(id => { const el = document.getElementById(id); if(el) el.value = todayStr; });
+
+// Tab navigation
+function showTab(tab) {
+  document.querySelectorAll('.panels').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.sidebar-item').forEach(s => s.classList.remove('active'));
+  document.getElementById('tab-' + tab).classList.add('active');
+  document.querySelectorAll('.sidebar-item').forEach(s => {
+    if(s.getAttribute('onclick') && s.getAttribute('onclick').includes("'" + tab + "'")) s.classList.add('active');
+  });
+}
+
+// Modal
+function openModal(id) { document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+document.querySelectorAll('.modal-overlay').forEach(m => {
+  m.addEventListener('click', e => { if(e.target === m) m.classList.remove('open'); });
+});
+
+// Toast
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = '✅ ' + msg;
+  t.style.display = 'block';
+  setTimeout(() => t.style.display = 'none', 3500);
+}
+
+// Select row
+function selectRow(row) {
+  row.classList.toggle('selected');
+  const cb = row.querySelector('input[type="checkbox"]');
+  if(cb) cb.checked = !cb.checked;
+}
+function toggleAll(cb) {
+  cb.closest('table').querySelectorAll('tbody input[type="checkbox"]').forEach(c => c.checked = cb.checked);
+}
+
+// CO01 actions
+function checkAvailability() {
+  const mat = document.getElementById('co01_material').value;
+  if(!mat) { alert('Please enter a Material Code first.'); return; }
+  showToast('Material availability check complete. All BOM components available for ' + mat + '.');
+}
+function releaseOrder() {
+  const mat = document.getElementById('co01_material').value;
+  const qty = document.getElementById('co01_qty').value;
+  if(!mat || !qty) { alert('Please fill Material Code and Quantity.'); return; }
+  showToast('Release carried out. Order is now in REL status.');
+}
+function saveOrder(code) {
+  const orderNum = '660' + Math.floor(Math.random()*9000000+1000000);
+  if(code === 'co01') {
+    const mat = document.getElementById('co01_material').value;
+    if(!mat) { alert('Please enter Material Code.'); return; }
+    document.getElementById('co01_orderno').value = orderNum;
+    const el = document.getElementById('co01_status');
+    document.getElementById('co01_status_text').textContent = 'Order number ' + orderNum + ' saved. BOM and Routing auto-populated.';
+    el.style.display = 'flex';
+    showToast('Order ' + orderNum + ' saved successfully (CO01).');
+  } else if(code === 'co02') {
+    const ord = document.getElementById('co02_orderno').value;
+    if(!ord) { alert('Please enter an Order Number.'); return; }
+    const el = document.getElementById('co02_status');
+    document.getElementById('co02_status_text').textContent = 'Order number ' + ord + ' saved. Quantity updated successfully.';
+    el.style.display = 'flex';
+    showToast('Order ' + ord + ' saved successfully (CO02).');
+  } else if(code === 'co15') {
+    const ord = document.getElementById('co15_orderno').value;
+    const yld = document.getElementById('co15_yield').value;
+    if(!ord || !yld) { alert('Please enter Order Number and Yield Quantity.'); return; }
+    const el = document.getElementById('co15_status');
+    document.getElementById('co15_status_text').textContent = 'Confirmation saved (Goods movements: 4 posted). GR Mv.101: ' + yld + ' EA posted. GI Mv.261: Components consumed.';
+    el.style.display = 'flex';
+    el.className = 'status-message success';
+    showToast('Confirmation saved for Order ' + ord + '. GR + GI postings complete.');
+  }
+}
+
+// CO02 load
+const orderData = {
+  '6600000887': { material: '3605202', plant: 'TE01', otype: 'PP01', status: 'REL MSPT MANC PCC' },
+  '6600000888': { material: '3605210', plant: 'TE01', otype: 'PP01', status: 'CNF MSPT MANC PCC' },
+  '6600000885': { material: '3405100', plant: 'TE01', otype: 'PP01', status: 'CRTD' },
+  '6600000880': { material: '3205033', plant: 'TE01', otype: 'PP01', status: 'TECO MSPT MANC NTUP PCC' },
+};
+function loadOrderCO02() {
+  const ord = document.getElementById('co02_orderno').value;
+  const d = orderData[ord];
+  if(d) {
+    document.getElementById('co02_material').value = d.material;
+    document.getElementById('co02_plant').value = d.plant;
+    document.getElementById('co02_otype').value = d.otype;
+    document.getElementById('co02_status').value = d.status;
+  } else {
+    ['co02_material','co02_plant','co02_otype','co02_status'].forEach(id => document.getElementById(id).value = '');
+  }
+}
+function loadOrderCO15() {
+  const ord = document.getElementById('co15_orderno').value;
+  const d = orderData[ord];
+  if(d) {
+    document.getElementById('co15_material').value = d.material;
+    document.getElementById('co15_status_field').value = d.status;
+  }
+}
+function loadOrderTECO() {
+  const ord = document.getElementById('teco_orderno').value;
+  const d = orderData[ord];
+  if(d) {
+    document.getElementById('teco_material').value = d.material;
+    document.getElementById('teco_status_field').value = d.status;
+  }
+}
+function readMasterData() { showToast('PP Master Data refreshed. BOM and Routing updated from current master records.'); }
+function releaseOrderCO02() {
+  const ord = document.getElementById('co02_orderno').value;
+  if(!ord) { alert('Please enter an Order Number.'); return; }
+  document.getElementById('co02_status').value = 'REL MSPT MANC PCC';
+  showToast('Release carried out for Order ' + ord + '. Status updated to REL.');
+}
+
+// CO15 goods movements preview
+function previewGoodsMovements() {
+  const ord = document.getElementById('co15_orderno').value;
+  const yld = document.getElementById('co15_yield').value || '5,000';
+  if(!ord) { alert('Please enter an Order Number.'); return; }
+  document.getElementById('co15_gm_qty').textContent = Number(yld).toLocaleString('en-IN');
+  document.getElementById('co15_gm_card').style.display = 'block';
+  document.getElementById('co15_gm_card').scrollIntoView({ behavior: 'smooth' });
+}
+
+// TECO actions
+function applyTECO() {
+  const ord = document.getElementById('teco_orderno').value;
+  if(!ord) { alert('Please enter a Production Order Number.'); return; }
+  const el = document.getElementById('teco_confirm_status');
+  document.getElementById('teco_confirm_text').innerHTML = '🔒 TECO applied to Order ' + ord + '. Status: <strong>TECO MSPT MANC NTUP PCC</strong>. Order removed from MRP. All reservations cancelled.';
+  el.style.display = 'flex';
+  el.className = 'status-message warning';
+  document.getElementById('teco_status_field').value = 'TECO MSPT MANC NTUP PCC';
+  showToast('Technical Completion applied to Order ' + ord + '.');
+}
+function revokeTECO() {
+  const ord = document.getElementById('teco_orderno').value;
+  if(!ord) { alert('Please enter a Production Order Number.'); return; }
+  const el = document.getElementById('teco_confirm_status');
+  document.getElementById('teco_confirm_text').innerHTML = '↩️ TECO revoked for Order ' + ord + '. Order restored to previous status for further goods movements.';
+  el.style.display = 'flex';
+  el.className = 'status-message info';
+  showToast('TECO revoked for Order ' + ord + '. Status restored.');
+}
+
+// MD16 fetch + convert
+function fetchPlannedOrders() {
+  document.getElementById('md16_results').style.display = 'block';
+  document.getElementById('md16_results').scrollIntoView({ behavior: 'smooth' });
+}
+function convertSelected() {
+  const checked = document.querySelectorAll('#md16_body input[type="checkbox"]:checked');
+  if(checked.length === 0) { alert('Please select at least one Planned Order to convert.'); return; }
+  checked.forEach(cb => {
+    const row = cb.closest('tr');
+    row.style.opacity = '0.4';
+    row.style.textDecoration = 'line-through';
+  });
+  const el = document.getElementById('md16_convert_status');
+  document.getElementById('md16_convert_text').textContent = checked.length + ' Planned Order(s) successfully converted to Production Orders. Source Planned Orders permanently removed from system.';
+  el.style.display = 'flex';
+  showToast(checked.length + ' Planned Order(s) converted to Production Orders (MD16).');
+}
+</script>
+</body>
+</html>
